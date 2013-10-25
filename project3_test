@@ -4,12 +4,13 @@ int b[maxn*maxn][3];
 // to store the list of highway
 // b[i][0],b[i][1] represent the two cities connected with the way
 // b[i][2] represent the cost of rebuild this way
+int set[maxn];// to mark which part the city belongs to
 
 void sort(int l,int r);// to use  Kruscal you nend to sort the highways first 
+int getfather(int x);//union find set
 int main()
 {
  	int i,j,k,l,m,n;
- 	int set[maxn];// to mark which part the city belongs to
  	FILE *f,*fp;
  	int x,y,z,c,s;
  	int cost;// store the cost of losing a city
@@ -40,14 +41,13 @@ int main()
 		   	  k=0;cost=0;
 	 		  for (j=0;j<=m;j++)//try every highway
 		   	  {
-			   	  if ((set[b[j][0]]!=set[b[j][1]])&&b[j][0]!=i&&b[j][1]!=i)
+			   	  x=getfather(b[j][0]);
+				  y=getfather(b[j][1]);
+				   if ((x!=y)&&b[j][0]!=i&&b[j][1]!=i)
 					 // find the highway which the two cities is not in the same part 
 					 // and it is not connected to the city conqured by enemy
 		          {
-				      x=set[b[j][0]];
-					  y=set[b[j][1]];
-					  for (l=1;l<=n;l++) if (set[l]==x) set[l]=y;
-					  // union the two set
+				      set[x]=y;// union the two sets
 					  cost+=b[j][2];
 					  k++;
 					  //update the cost and the counter
@@ -100,5 +100,11 @@ void sort(int l,int r)//quicksort
 	}
 	if (l<j) sort(l,j);//divide the array in 2 parts to do the same sorting.
 	if (i<r) sort(i,r);
+}
+
+int getfather(int x)
+{
+	if (set[x]==x) return x;
+	else return set[x]=getfather(set[x]);
 }
 	
