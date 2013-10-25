@@ -1,0 +1,104 @@
+#include <stdio.h>
+#define maxn 102
+int b[maxn*maxn][3]; 
+// to store the list of highway
+// b[i][0],b[i][1] represent the two cities connected with the way
+// b[i][2] represent the cost of rebuild this way
+
+void sort(int l,int r);// to use  Kruscal you nend to sort the highways first 
+int main()
+{
+ 	int i,j,k,l,m,n;
+ 	int set[maxn];// to mark which part the city belongs to
+ 	FILE *f,*fp;
+ 	int x,y,z,c,s;
+ 	int cost;// store the cost of losing a city
+ 	int maxc;//store the max cost of cities
+	int ans[maxn],ansl; // a list to store the city we pay most attention
+ 	
+ 	f=fopen("test.in","r");
+ 	fp=fopen("test.out","w");
+ 	fscanf(f,"%d",&n); //input the num of the city
+ 	while (n)
+ 	{
+	 	  fscanf(f,"%d",&m);//input the num of the highway
+  		  for (i=0;i<m;i++)
+	 	  {
+		   	  fscanf(f,"%d%d%d%d",&x,&y,&c,&s);
+		   	  b[i][0]=x;
+			  b[i][1]=y;
+		   	  if (s==0) b[i][2]=c;else b[i][2]=0;//if the way is in use, it cost 0 to rebuild it
+           }
+           //input the details of the highways
+           sort(0,m);
+           //sort the ways in increasing order of b[][2]
+           ansl=0;maxc=0;
+           //initialize the selection 
+           for (i=1;i<=n;i++)// test every city
+           {
+		   	  for (j=1;j<=n;j++) set[j]=j;//initialize the set[],every city is in its own part
+		   	  k=0;cost=0;
+	 		  for (j=0;j<=m;j++)//try every highway
+		   	  {
+			   	  if ((set[b[j][0]]!=set[b[j][1]])&&b[j][0]!=i&&b[j][1]!=i)
+					 // find the highway which the two cities is not in the same part 
+					 // and it is not connected to the city conqured by enemy
+		          {
+				      x=set[b[j][0]];
+					  y=set[b[j][1]];
+					  for (l=1;l<=n;l++) if (set[l]==x) set[l]=y;
+					  // union the two set
+					  cost+=b[j][2];
+					  k++;
+					  //update the cost and the counter
+					  if (k==n-2) break;
+					  // n-2 highways is enough to connect the n-1 cities left
+				  }
+			  }
+			  if (cost>maxc) {maxc=cost;ansl=0;ans[++ansl]=i;}
+			  else if (cost&&cost==maxc) ans[++ansl]=i;
+			  //update the ans[] list
+            }
+            if (ansl)
+			{
+				if (ansl>1) for (i=1;i<ansl;i++) fprintf(fp,"%d ",ans[i]);
+            	fprintf(fp,"%d\n",ans[ansl]);
+			}
+			else fprintf(fp,"0\n");
+			// output the answer
+            fscanf(f,"%d",&n);
+            // input the n of the next case
+		}
+	fclose(fp);
+    return 0;
+}
+			  
+void sort(int l,int r)//quicksort
+{
+	int i,j,x;
+	int temp[3];
+	
+	i=l;j=r;// mark the left and right
+	x=b[(l+r)/2][2];//select the middle as a benchmark
+	while (i<=j)//make the elements in the left part of the benchmark is smaller than the right
+	{
+		while (b[i][2]<x) i++;
+		while (b[j][2]>x) j--;
+		if (i<=j)
+		{
+			temp[0]=b[i][0];
+			temp[1]=b[i][1];
+			temp[2]=b[i][2];
+			b[i][0]=b[j][0];
+			b[i][1]=b[j][1];
+			b[i][2]=b[j][2];
+			b[j][0]=temp[0];
+			b[j][1]=temp[1];
+			b[j][2]=temp[2];
+			i++;j--;
+		}
+	}
+	if (l<j) sort(l,j);//divide the array in 2 parts to do the same sorting.
+	if (i<r) sort(i,r);
+}
+	
