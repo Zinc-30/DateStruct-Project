@@ -1,53 +1,5 @@
 #include <stdio.h>
 #define maxn 102
-int b[maxn*maxn][3];
-void sort(int l,int r);
-int main()
-{
- 	int i,j,k,l,m,n;
- 	int set[maxn];
- 	int bcp[maxn*maxn][3];
- 	FILE *f,*fp;
- 	int x,y,z,c,s;
- 	int maxc;
- 	int cost,ans[maxn],ansl;
- 	
- 	f=fopen("test.in","r");
- 	fp=fopen("test.out","w");
- 	fscanf(f,"%d",&n);
- 	while (n)
- 	{
-	 	  fscanf(f,"%d",&m);
-	 	  maxc=0;
-  		  for (i=0;i<m;i++)
-	 	  {
-		   	  fscanf(f,"%d%d%d%d",&x,&y,&c,&s);
-		   	  b[i][1]=y;
-		   	  if (s==0)b[i][2]=c;else b[i][2]=0;
-		   	  b[i][0]=x;
-           }
-           sort(0,m);
-           ansl=0;maxc=0;
-           for (i=1;i<=n;i++)
-           {
-		   	  for (j=1;j<=n;j++) set[j]=j;
-		   	  k=0;cost=0;
-	 		  for (j=0;j<=m;j++)
-		   	  {
-			   	  if ((set[b[j][0]]!=set[b[j][1]])&&b[j][0]!=i&&b[j][1]!=i)
-		          {
-				      x=set[b[j][0]];
-					  y=set[b[j][1]];
-		//			  for (l=1;l<=n;l++) fprintf(fp,"1:%d-%d ",l,set[l]);fprintf(fp,"\n");
-					  for (l=1;l<=n;l++) if (set[l]==x) set[l]=y;
-		//			  for (l=1;l<=n;l++) fprintf(fp,"2:%d-%d ",l,set[l]);fprintf(fp,"\n");
-					  cost+=b[j][2];
-		//			  fprintf(fp,"%d::%d--%d,c:%d\n",i,x,y,b[j][2]);
-					  
-					  k++;
-					  if (k==n) break;
-				  }#include <stdio.h>
-#define maxn 102
 int b[maxn*maxn][3]; 
 // to store the list of highway
 // b[i][0],b[i][1] represent the two cities connected with the way
@@ -143,52 +95,6 @@ void sort(int l,int r)//quicksort
 		}
 	}
 	if (l<j) sort(l,j);//divide the array in 2 parts to do the same sorting.
-	if (i<r) sort(i,r);
-}
-	
-			  }
-		//	  fprintf(fp,"%d.cost:%d\n",i,cost);
-			  if (cost>maxc) {maxc=cost;ansl=0;ans[++ansl]=i;}
-			  else if (cost&&cost==maxc) ans[++ansl]=i;
-            }
-            if (ansl)
-			{
-				if (ansl>1) for (i=1;i<ansl;i++) fprintf(fp,"%d ",ans[i]);
-            	fprintf(fp,"%d\n",ans[ansl]);
-			}
-			else fprintf(fp,"0\n");
-            fscanf(f,"%d",&n);
-		}
-	fclose(fp);
-    return 0;
-}
-			  
-void sort(int l,int r)
-{
-	int i,j,x;
-	int temp[3];
-	
-	i=l;j=r;
-	x=b[(l+r)/2][2];
-	while (i<=j)
-	{
-		while (b[i][2]<x) i++;
-		while (b[j][2]>x) j--;
-		if (i<=j)
-		{
-			temp[0]=b[i][0];
-			temp[1]=b[i][1];
-			temp[2]=b[i][2];
-			b[i][0]=b[j][0];
-			b[i][1]=b[j][1];
-			b[i][2]=b[j][2];
-			b[j][0]=temp[0];
-			b[j][1]=temp[1];
-			b[j][2]=temp[2];
-			i++;j--;
-		}
-	}
-	if (l<j) sort(l,j);
 	if (i<r) sort(i,r);
 }
 	
