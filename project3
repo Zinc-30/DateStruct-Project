@@ -1,51 +1,87 @@
+/*
+this program first use tarjan to find a set of cut point
+then try every cut point and using kruscal to caculate the cost of build a minimum spinning tree
+*/
 #include <stdio.h>
-#define maxn 102
+#define maxn 1002
+
 int b[maxn*maxn][3]; 
 // to store the list of highway
 // b[i][0],b[i][1] represent the two cities connected with the way
 // b[i][2] represent the cost of rebuild this way
+int e[maxn][maxn];//adjacent matrix to filter the multiple edge and store the ways 
 int set[maxn];// to mark which part the city belongs to
+int cut[maxn],cutnum;// store the cut point
+int dfs[maxn],low[maxn];
+//dfs[x] store the timestap of x;
+//low[x] store the smallest timestap x can get
+int time;//timestamp
+int n;//num of the cities
+
 void sort(int l,int r);// to use  Kruscal you nend to sort the highways first 
-int getfather(int x);//union_find which part x belongs to
+int getfather(int x);//union find set
+int tarjan(int u,int x);//find the cut point using tarjan
 
 int main()
 {
- 	int i,j,k,l,m,n;
+ 	int i,j,k,l,m;
+ 	FILE *f;
  	int x,y,z,c,s;
  	int cost;// store the cost of losing a city
  	int maxc;//store the max cost of cities
-	int ans[maxn],ansl; // a list to store the city we pay most attention
+	int ans[maxn],ansl; // a list to store the cities we pay most attention
  	
  	scanf("%d",&n); //input the num of the city
  	while (n)
  	{
 	 	  scanf("%d",&m);//input the num of the highway
+	 	  l=0;
+	 	  for (i=1;i<=n;i++)
+           	for (j=1;j<=n;j++) 
+        		e[i][j]=0;
   		  for (i=0;i<m;i++)
 	 	  {
 		   	  scanf("%d%d%d%d",&x,&y,&c,&s);
-		   	  b[i][0]=x;
-			  b[i][1]=y;
-		   	  if (s==0) b[i][2]=c;else b[i][2]=0;//if the way is in use, it cost 0 to rebuild it
-           }
+		   	  if (x!=y&&(s==1||s==0&&(!e[x][y]||c<e[x][y])))//filter the self_loop and multiple edge
+		   	  {
+				b[l][0]=x;
+			  	b[l][1]=y;
+		   	  	if (s==0) {b[l][2]=c;e[x][y]=c;}else b[l][2]=0;//if the way is in use, it cost 0 to rebuild it
+		   	  	l++;
+    	      }
+		   }
            //input the details of the highways
+           for (i=0;i<=n;i++) dfs[i]=low[i]=0;
+           for (i=1;i<=n;i++)
+           	for (j=1;j<=n;j++) 
+        		e[i][j]=0;
+           for (i=0;i<l;i++) if (b[i][2]==0) 
+		   {
+		   		x=b[i][0];
+		   		y=b[i][1];
+		   		e[x][y]=1;
+		   		e[y][x]=1;
+		   }
+		   cutnum=0;time=0;
+		   //initialize and prepare for tarjan
+           tarjan(0,1);
            sort(0,m);
            //sort the ways in increasing order of b[][2]
            ansl=0;maxc=0;
            //initialize the selection 
-           for (i=1;i<=n;i++)// test every city
+           for (i=0;i<cutnum;i++)// test every cut point cities
            {
 		   	  for (j=1;j<=n;j++) set[j]=j;//initialize the set[],every city is in its own part
 		   	  k=0;cost=0;
-	 		  for (j=0;j<=m;j++)//try every highway
+	 		  for (j=0;j<=l;j++)//try every highway
 		   	  {
-		   	  	  x=getfather(b[j][0]);
+			   	  x=getfather(b[j][0]);
 				  y=getfather(b[j][1]);
-			   	  if ((set[b[j][0]]!=set[b[j][1]])&&b[j][0]!=i&&b[j][1]!=i)
+				   if ((x!=y)&&b[j][0]!=cut[i]&&b[j][1]!=cut[i])
 					 // find the highway which the two cities is not in the same part 
 					 // and it is not connected to the city conqured by enemy
 		          {
-					  set[x]=y;
-					  // union the two sets
+				      set[x]=y;// union the two sets
 					  cost+=b[j][2];
 					  k++;
 					  //update the cost and the counter
@@ -53,10 +89,20 @@ int main()
 					  // n-2 highways is enough to connect the n-1 cities left
 				  }
 			  }
-			  if (cost>maxc) {maxc=cost;ansl=0;ans[++ansl]=i;}
-			  else if (cost&&cost==maxc) ans[++ansl]=i;
+			  if (cost>maxc) {maxc=cost;ansl=0;ans[++ansl]=cut[i];}
+			  else if (cost&&cost==maxc) ans[++ansl]=cut[i];
 			  //update the ans[] list
-           }
+            }
+            for (i=1;i<ansl;i++) 
+            for (j=i+1;j<=ansl;j++)
+            {
+            	if (ans[i]>ans[j])
+            	{
+            		k=ans[i];
+            		ans[i]=ans[j];
+            		ans[j]=k;
+            	}
+            }
             if (ansl)
 			{
 				if (ansl>1) for (i=1;i<ansl;i++) printf("%d ",ans[i]);
@@ -66,7 +112,7 @@ int main()
 			// output the answer
             scanf("%d",&n);
             // input the n of the next case
-	 }
+		}
     return 0;
 }
 			  
@@ -98,8 +144,34 @@ void sort(int l,int r)//quicksort
 	if (l<j) sort(l,j);//divide the array in 2 parts to do the same sorting.
 	if (i<r) sort(i,r);
 }
+
 int getfather(int x)
 {
 	if (set[x]==x) return x;
 	else return set[x]=getfather(set[x]);
-}	
+}
+
+int tarjan(int u,int x)
+{
+	int i,c=0;
+	dfs[x]=low[x]=++time;//initialize:
+	
+	for (i=1;i<=n;i++)
+	if (e[x][i]&&u!=i)//test every edge to depth_first search
+	{
+		if (!dfs[i]) 
+		{
+			tarjan(x,i);
+			if (low[i]<low[x]) low[x]=low[i];//if node i is unvisited
+		}
+		else 
+		{
+			if (dfs[i]<low[x]) low[x]=dfs[i];//if node i has been visited  
+		}
+		if (dfs[x]<=low[i]) c++;
+	}
+	if (!u&&c>1||u&&c) cut[cutnum++]=x;
+	//x is a cut point only is it is the root and have two subset
+	//or it it have a child i with low[i]>=dfs[x] 
+}
+	
