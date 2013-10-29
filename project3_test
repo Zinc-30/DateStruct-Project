@@ -45,11 +45,11 @@ int main()
 	 	  {
 		   	  fscanf(f,"%d%d%d%d",&x,&y,&c,&s);
 		   	  if (s==1) c=0;
-		   	  if (x!=y&&(e[x][y]=-1||c<e[x][y]))//filter the self_loop and multiple edge
+		   	  if (x!=y&&(e[x][y]==-1||c<e[x][y]))//filter the self_loop and multiple edge
 		   	  {
 				b[l][0]=x;
 			  	b[l][1]=y;
-		   	  	b[l][2]=c;e[x][y]=c;//if the way is in use, it cost 0 to rebuild it
+		   	  	b[l][2]=e[x][y]=e[y][x]=c;//if the way is in use, it cost 0 to rebuild it
 		   	  	l++;
     	                  }
 		   }
