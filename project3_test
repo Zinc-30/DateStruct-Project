@@ -45,7 +45,7 @@ int main()
 	 	  {
 		   	  fscanf(f,"%d%d%d%d",&x,&y,&c,&s);
 		   	  if (s==1) c=0;
-		   	  if (x!=y&&(e[x][y]=-1||c<e[x][y])))//filter the self_loop and multiple edge
+		   	  if (x!=y&&(e[x][y]=-1||c<e[x][y]))//filter the self_loop and multiple edge
 		   	  {
 				b[l][0]=x;
 			  	b[l][1]=y;
