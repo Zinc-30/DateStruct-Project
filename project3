@@ -66,7 +66,7 @@ int main()
 		   cutnum=0;time=0;
 		   //initialize and prepare for tarjan
            tarjan(0,1);
-           sort(0,l);
+           sort(0,l-1);
            //sort the ways in increasing order of b[][2]
            ansl=0;maxc=0;
            //initialize the selection 
